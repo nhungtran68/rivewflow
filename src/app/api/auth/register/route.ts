@@ -23,8 +23,9 @@ export async function POST(request: NextRequest) {
     if (existing.length) return NextResponse.json({ error: "Email đã được sử dụng." }, { status: 409 });
     const passwordHash = await hashPassword(input.password);
     const [user] = await sql`INSERT INTO users (name,email,password_hash) VALUES (${input.name},${input.email},${passwordHash}) RETURNING id,email,name`;
-    const response = NextResponse.json({ user });
-    setSessionCookie(response, await createSessionToken(user));
+    const sessionUser = { id: String(user.id), email: String(user.email), name: String(user.name) };
+    const response = NextResponse.json({ user: sessionUser });
+    setSessionCookie(response, await createSessionToken(sessionUser));
     return response;
   } catch (e) { return apiError(e); }
 }
