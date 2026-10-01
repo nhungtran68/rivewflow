@@ -14,8 +14,9 @@ export async function POST(request: NextRequest) {
     await enforcePublicRateLimit(stableHash(`${ip}:${input.email.toLowerCase()}`), "login", 10, 900);
     const [user] = await db()`SELECT id,email,name,password_hash FROM users WHERE email=${input.email.toLowerCase()} LIMIT 1`;
     if (!user || !(await verifyPassword(input.password, user.passwordHash))) return NextResponse.json({ error: "Email hoặc mật khẩu không đúng." }, { status: 401 });
-    const response = NextResponse.json({ user: { id: user.id, email: user.email, name: user.name } });
-    setSessionCookie(response, await createSessionToken(user));
+    const sessionUser = { id: String(user.id), email: String(user.email), name: String(user.name) };
+    const response = NextResponse.json({ user: sessionUser });
+    setSessionCookie(response, await createSessionToken(sessionUser));
     return response;
   } catch (e) { return apiError(e); }
 }
