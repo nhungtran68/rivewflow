@@ -1,0 +1,10 @@
+{
+  "name": "ReviewFlow AI",
+  "short_name": "ReviewFlow",
+  "start_url": "/projects",
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#121a2b",
+  "description": "AI studio tạo video review sản phẩm",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

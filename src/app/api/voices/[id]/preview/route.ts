@@ -1,0 +1,5 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { apiError, requireUser } from "@/lib/http";
+import { ElevenLabsProvider } from "@/lib/tts/elevenlabs";
+export async function POST(request:NextRequest,{params}:{params:Promise<{id:string}>}){try{const u=await requireUser(request);const{id}=await params;const[v]=await db()`SELECT * FROM voices WHERE id=${id} AND user_id=${u.id} AND status='READY'`;if(!v)return NextResponse.json({error:"Không tìm thấy giọng."},{status:404});if(v.provider!=="ELEVENLABS")return NextResponse.json({error:"VBee xử lý bất đồng bộ; hãy nghe thử khi tạo audio trong dự án."},{status:409});const out=await new ElevenLabsProvider().synthesize({text:"Xin chào, đây là bản nghe thử giọng nói của bạn trên ReviewFlow AI.",externalVoiceId:v.externalVoiceId,speed:Number(v.speed||1)});if(out.mode!=="sync")throw new Error("Unexpected async preview");return new NextResponse(new Uint8Array(out.audio),{headers:{"Content-Type":out.contentType,"Cache-Control":"no-store"}})}catch(e){return apiError(e)}}
